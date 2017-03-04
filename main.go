@@ -6,13 +6,8 @@ import (
     "database/sql"
     _ "github.com/go-sql-driver/mysql"
 )
+
 var healthy = true
-
-type Customer struct {
-    id int 
-    email string 
-}
-
 
 func index (c *gin.Context){
     hostname,err := os.Hostname()
@@ -29,6 +24,11 @@ func healthz (c *gin.Context){
 func cancer (c *gin.Context){
      healthy = false
      c.String(500,"NOT_OK")
+}
+
+type Customer struct {
+    id int 
+    email string 
 }
 
 func fetch (c *gin.Context){
@@ -56,7 +56,3 @@ func main(){
   app.GET("/dbtest",fetch)
   app.Run(":8000")
 }
-
-//func homePage(res http.ResponseWriter, req *http.Request) {
-	//http.ServeFile(res, req, "index.html")
-//}
