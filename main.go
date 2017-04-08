@@ -5,6 +5,8 @@ import (
     "os"
     "database/sql"
     _ "github.com/go-sql-driver/mysql"
+    "github.com/jordan-wright/email"
+    "net/smtp"
 )
 
 var healthy = true
@@ -45,12 +47,23 @@ func main(){
   app.GET("/healthz", healthz)
   app.GET("/cancer", cancer)
   app.GET("/dbtest",fetch)
+  app.POST("/email",sendEmail)
   app.Run(":8000")
 }
 /******************* End MAIN Function **************/
 
 
-
+func sendEmail(c *gin.Context){
+    e := email.NewEmail()
+    e.From = c.PostForm("from")
+    e.To = []string{os.Getenv("to_email")}
+    e.Subject = c.PostForm("subject")
+    e.Text = []byte(c.PostForm("message"))
+    err := e.Send("smtp.mailgun.org:587", smtp.PlainAuth("",os.Getenv("email_username"),os.Getenv("email_password"),"smtp.mailgun.org"))
+    if err != nil {
+            panic(err)
+    }
+}
 
 func fetch (c *gin.Context){
     connStr := os.Getenv("sql_user")+":"+os.Getenv("sql_password")+"@tcp("+os.Getenv("sql_host")+":3306)/"+os.Getenv("sql_db")
